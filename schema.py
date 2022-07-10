@@ -2,7 +2,19 @@ import pandas as pd
 import xlwings as xw
 
 
-def table_query(book_name, sheet_name):
+def connection_test_to_source_db():
+    return
+
+
+def source_db_load_to_excel():
+    return
+
+
+def connection_test_to_target_db():
+    return
+
+
+def make_table_query(book_name, sheet_name):
     # do not open app
     app = xw.App(visible=False)
 
@@ -50,7 +62,8 @@ def table_query(book_name, sheet_name):
 
         # add default value
         if row['DATA_DEFAULT']:
-            if row['DATA_DEFAULT'] == 'SYSDATE' or row['DATA_DEFAULT'] == 'SYSTIMESTAMP' or row['DATA_DEFAULT'].isdigit():
+            if row['DATA_DEFAULT'] == 'SYSDATE' or row['DATA_DEFAULT'] == 'SYSTIMESTAMP' or row[
+                'DATA_DEFAULT'].isdigit():
                 temp += ' DEFAULT ' + row['DATA_DEFAULT']
             else:
                 temp += ' DEFAULT ' + "'" + row['DATA_DEFAULT'] + "'"
@@ -77,9 +90,46 @@ def table_query(book_name, sheet_name):
 
     app.kill()
 
+
+def make_index_query():
+    return
+
+
+def make_sequence_query():
+    return
+
+
+def make_procedure_query():
+    return
+
+
+def make_view_query():
+    return
+
+
+def run_table_query():  # TODO rollback도 같은 함수로 구현
+    return
+
+
+def run_index_query(): # TODO rollback도 같은 함수로 구현
+    return
+
+
+def run_sequence_query(): # TODO rollback도 같은 함수로 구현
+    return
+
+
+def run_procedure_query(): # TODO rollback도 같은 함수로 구현
+    return
+
+
+def run_view_query(): # TODO rollback도 같은 함수로 구현
+    return
+
+
 pd.set_option('display.width', 400)
 pd.set_option('display.max_columns', 10)
 
-table_query('TC_HELPER.xlsx', 'TABLE')
+make_table_query('TC_HELPER.xlsx', 'TABLE')
 
 # purge recycle bin 수행 필요.
