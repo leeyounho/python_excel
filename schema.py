@@ -26,68 +26,51 @@ def make_table_query(book_name, sheet_name):
     df1 = xs['A1'].expand().options(pd.DataFrame, header=1, index=False, expand='table',
                                     numbers=lambda x: str(int(x))).value
 
-    # Initialize column
-    col_name = 'INSERT_QUERY'
-    col_index = df1.columns.get_loc(col_name)
-    df1 = df1.drop(df1.columns[col_index], axis=1)
-    df1.insert(col_index, col_name, '')
-
-    col_name = 'ROLLBACK_QUERY'
-    col_index = df1.columns.get_loc(col_name)
-    df1 = df1.drop(df1.columns[col_index], axis=1)
-    df1.insert(col_index, col_name, '')
-
     # Sort
     df1 = df1.sort_values(by=['TABLE_NAME', 'COLUMN_ID'], ascending=True)
 
-    # Add min, max column_id
-    df1['MAX_COLUMN_ID'] = df1.groupby('TABLE_NAME')['COLUMN_ID'].transform('max')
-    df1['MIN_COLUMN_ID'] = df1.groupby('TABLE_NAME')['COLUMN_ID'].transform('min')
+    df2 = pd.DataFrame(columns={'TABLE_NAME', 'COLUMN_ID', 'INSERT_QUERY'})
 
-    # print(df1)
+    for name, group in df1.groupby('TABLE_NAME'):
+        max_i = len(group) - 1
+        string = 'CREATE TABLE ' + name + '\n(\n'
+        for i, (index, row) in enumerate(group.iterrows()):
+            # add column
+            string += row['COLUMN_NAME'] + ' ' + row['DATA_TYPE'] + ' ' + '(' + row['DATA_LENGTH'] + ')'
 
-    # Create Table Query
-    for index, row in df1.iterrows():
-        temp = ''
+            # add not null
+            string += (' NOT NULL' if row['NULLABLE'] == 'N' else '')
 
-        # 첫번째 COLUMN_ID면 CREATE TABLE 구문 추가
-        if row['COLUMN_ID'] == row['MIN_COLUMN_ID']:
-            temp += 'CREATE TABLE ' + row['TABLE_NAME'] + '\n(\n'
+            # add default value
+            if row['DATA_DEFAULT']:
+                if row['DATA_DEFAULT'] == 'SYSDATE' or row['DATA_DEFAULT'] == 'SYSTIMESTAMP' or row['DATA_DEFAULT'].isdigit():
+                    string += ' DEFAULT ' + row['DATA_DEFAULT']
+                else:
+                    string += ' DEFAULT ' + "'" + row['DATA_DEFAULT'] + "'"
 
-        # add column
-        temp += row['COLUMN_NAME'] + ' ' + row['DATA_TYPE'] + ' ' + '(' + str(row['DATA_LENGTH']) + ')'
+            # add comma
+            string += ',\n' if i != max_i else '\n'
 
-        # add not null
-        temp += (' NOT NULL' if row['NULLABLE'] == 'N' else '')
+        # TODO add tablespace
+        string += ');'
 
-        # add default value
-        if row['DATA_DEFAULT']:
-            if row['DATA_DEFAULT'] == 'SYSDATE' or row['DATA_DEFAULT'] == 'SYSTIMESTAMP' or row[
-                'DATA_DEFAULT'].isdigit():
-                temp += ' DEFAULT ' + row['DATA_DEFAULT']
-            else:
-                temp += ' DEFAULT ' + "'" + row['DATA_DEFAULT'] + "'"
+        # TODO deprecated
+        df2 = df2.append({'TABLE_NAME': name, 'COLUMN_ID': '1', 'INSERT_QUERY': string}, ignore_index=True)
 
-        # add comma
-        if row['COLUMN_ID'] != row['MAX_COLUMN_ID']:
-            temp += ','
-        else:
-            temp += '\n);'
+    # INSERT_QUERY Merge
+    df1 = df1.drop('INSERT_QUERY', axis=1)
+    df1 = pd.merge(df1, df2, how='left', on=['TABLE_NAME', 'COLUMN_ID'])
 
-        row['INSERT_QUERY'] = temp
-
-    # drop temp column
-    df1 = df1.drop(df1[['MAX_COLUMN_ID', 'MIN_COLUMN_ID']], axis=1)
-
-    print(df1)
     # Table Index TODO
 
     # Drop Table Query
+    df1 = df1.drop('ROLLBACK_QUERY', axis=1)
     df1['ROLLBACK_QUERY'] = 'DROP TABLE ' + df1['TABLE_NAME'].drop_duplicates() + ' CASCADE CONSTRAINTS;'
 
     # Table 저장
     xs['A1'].expand().options(pd.DataFrame, index=False).value = df1
 
+    print(df1)
     app.kill()
 
 
@@ -111,24 +94,24 @@ def run_table_query():  # TODO rollback도 같은 함수로 구현
     return
 
 
-def run_index_query(): # TODO rollback도 같은 함수로 구현
+def run_index_query():  # TODO rollback도 같은 함수로 구현
     return
 
 
-def run_sequence_query(): # TODO rollback도 같은 함수로 구현
+def run_sequence_query():  # TODO rollback도 같은 함수로 구현
     return
 
 
-def run_procedure_query(): # TODO rollback도 같은 함수로 구현
+def run_procedure_query():  # TODO rollback도 같은 함수로 구현
     return
 
 
-def run_view_query(): # TODO rollback도 같은 함수로 구현
+def run_view_query():  # TODO rollback도 같은 함수로 구현
     return
 
 
-pd.set_option('display.width', 400)
-pd.set_option('display.max_columns', 10)
+pd.set_option('display.width', 1000)
+pd.set_option('display.max_columns', 20)
 
 make_table_query('TC_HELPER.xlsx', 'TABLE')
 
