@@ -1,7 +1,7 @@
 import pandas as pd
 import xlwings as xw
 
-
+'''
 def table_query(book_name, sheet_name):
     # do not open app
     app = xw.App(visible=False)
@@ -83,3 +83,4 @@ pd.set_option('display.max_columns', 10)
 table_query('TC_HELPER.xlsx', 'TABLE')
 
 # purge recycle bin 수행 필요.
+'''
