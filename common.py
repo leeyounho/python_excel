@@ -7,19 +7,6 @@ import xlwings as xw
 black_color = (0, 0, 0)
 gray = (128, 128, 128)
 
-
-def connection_test_to_source_db():
-    return
-
-
-def source_db_load_to_excel():
-    return
-
-
-def connection_test_to_target_db():
-    return
-
-
 def make_table_query(book_name, sheet_name):
     # do not open app
     app = xw.App(visible=False)
@@ -81,48 +68,6 @@ def make_table_query(book_name, sheet_name):
     except Exception as e:
         app.kill()
         traceback.print_exc()
-        # print(e)
-
-
-def make_index_query():
-    return
-
-
-def make_sequence_query():
-    return
-
-
-def make_procedure_query():
-    return
-
-
-def make_view_query():
-    return
-
-
-def run_table_query():  # TODO rollback도 같은 함수로 구현
-    return
-
-
-def run_index_query():  # TODO rollback도 같은 함수로 구현
-    return
-
-
-def run_sequence_query():  # TODO rollback도 같은 함수로 구현
-    return
-
-
-def run_procedure_query():  # TODO rollback도 같은 함수로 구현
-    return
-
-
-def run_view_query():  # TODO rollback도 같은 함수로 구현
-    return
-
-
-def insert_table(book_name, sheet_name, cell_position):
-    return
-
 
 def delete_range(book_name, sheet_name, range_string):
     xb = xw.Book(book_name)
@@ -176,12 +121,23 @@ def set_font_size_range(book_name, sheet_name, range_string, font_size):
     xs.range(range_string).api.Font.Size = font_size
 
 
-pd.set_option('display.width', 1000)
-pd.set_option('display.max_columns', 20)
+# pd.set_option('display.width', 1000)
+# pd.set_option('display.max_columns', 20)
 
 # make_table_query('TC_HELPER.xlsx', 'TABLE')
 
 # delete_range('TC_HELPER.xlsx', '5', 'C:D')
-set_font_size_range('TC_HELPER.xlsx', '5', 'C6:E9', 12)
+# set_font_size_range('TC_HELPER.xlsx', '5', 'C6:E9', 12)
 
 # purge recycle bin 수행 필요.
+
+def get_book_name():
+    return xw.Book.caller()
+
+
+def get_book_name():
+    return xw.Book.caller().sheets.active
+
+if __name__ == '__main__':
+    print('main test')
+
