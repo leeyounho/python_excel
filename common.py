@@ -1,11 +1,13 @@
 import traceback
 
+import os
 import pandas as pd
 import xlwings as xw
 
 # rgb 색상표 http://www.n2n.pe.kr/lev-1/color.htm
 black_color = (0, 0, 0)
 gray = (128, 128, 128)
+
 
 def make_table_query(book_name, sheet_name):
     # do not open app
@@ -68,6 +70,7 @@ def make_table_query(book_name, sheet_name):
     except Exception as e:
         app.kill()
         traceback.print_exc()
+
 
 def delete_range(book_name, sheet_name, range_string):
     xb = xw.Book(book_name)
@@ -138,6 +141,14 @@ def get_book_name():
 def get_book_name():
     return xw.Book.caller().sheets.active
 
-if __name__ == '__main__':
-    print('main test')
 
+def get_dataframe_from_cell(cell_position, sheet_name, expand='table'):
+    return sheet_name[cell_position].expand().options(pd.DataFrame, header=1, index=False, expand=expand, numbers=lambda x: str(int(x))).value.apply(lambda x: x.str.strip())
+
+
+def get_user_profile_path():
+    return os.environ['USERPROFILE']
+
+
+if __name__ == '__main__':
+    print(get_user_profile_path())
